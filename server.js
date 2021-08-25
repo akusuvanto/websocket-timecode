@@ -53,7 +53,10 @@ function msToTimecode(ms) {
     var minutes = m % 60;
     var hours = (m - minutes) / 60;
 
-    return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds) + "." + pad(milliseconds, 3)
+    return  pad(hours) + ":" + 
+            pad(minutes) + ":" + 
+            pad(seconds) + "." + 
+            pad(milliseconds, 3)
 }
 
 // Pad numbers to at least 'accuracy' digits
