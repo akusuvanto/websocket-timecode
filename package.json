@@ -1,0 +1,26 @@
+{
+  "name": "websocket-timecode",
+  "version": "1.0.0",
+  "description": "Timecode via websockets",
+  "main": "server.js",
+  "dependencies": {
+    "console-clear": "^1.1.1",
+    "express": "^4.17.1",
+    "ws": "^8.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akusuvanto/websocket-timecode.git"
+  },
+  "author": "Aku",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akusuvanto/websocket-timecode/issues"
+  },
+  "homepage": "https://github.com/akusuvanto/websocket-timecode#readme"
+}
