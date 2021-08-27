@@ -2,16 +2,21 @@ const express = require('express');
 const path = require('path');
 const http = require('http')
 const WebSocket = require('ws');
+const clear = require('console-clear');
 
 const httpPort = 8080;
 const port = 5000;
+
+var lastPongTime;
+var numActiveConnections = 0;
+var masterStartTime = Date.now();
 
 // null object for ping
 function noop() {}
 
 function heartbeat() {
     this.isAlive = true;
-    console.log("received pong!")
+    lastPongTime = Date.now();
 }
 
 const server = http.createServer(express);
@@ -20,9 +25,34 @@ const app = express();
 
 wss.on('connection', function connection(ws){
     ws.isAlive = true;
-    ws.on('pong', heartbeat);
     ws.startTime = Date.now();
+    ws.on('pong', heartbeat);
 })
+
+// Command handler
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        switch(message.toString()) {
+            case 'restart':
+                ws.startTime = Date.now();
+                break;
+            case 'switch master':
+                ws.startTime = masterStartTime;
+                break;
+            case 'reset master':
+                oldMasterStartTime = masterStartTime;
+                masterStartTime = Date.now();
+                wss.clients.forEach(function each(ws) {
+                    if (ws.startTime == oldMasterStartTime){
+                        ws.startTime = masterStartTime;
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    });
+});
 
 function sendTimecode() {
     wss.clients.forEach(function each(ws) {
@@ -41,7 +71,7 @@ const pingInterval = setInterval(function ping() {
         ws.ping(noop);
         connection_number++;
     });
-    console.log(connection_number.toString() + " Connections active!")
+    numActiveConnections = connection_number;
 }, 5000);
 
 // Convert milliseconds to timecode format
@@ -64,6 +94,16 @@ function pad(number, accuracy=2) {
     cut_len = Math.max(number.toString().length, accuracy);
     return ('00' + number).slice(-cut_len);
 }
+
+function drawCLI(){
+    clear();
+    console.log("------------------------------")
+    console.log(numActiveConnections + " Connections active")
+    console.log("Last pong: " + Math.floor((Date.now() - lastPongTime)/1000) + " seconds ago")
+    console.log("------------------------------")
+}
+
+setInterval(function(){ drawCLI(); }, 1000);
 
 wss.on('close', function close() {
     clearInterval(pingInterval);

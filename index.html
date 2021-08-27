@@ -2,40 +2,48 @@
 <html>
 <body style="background-color: #1a1c1e;">
 
-    <h1 style="color:white;font-size:50px;text-align:center;">Timecode</h1>
-    <p style="color:white;font-size:30px;text-align:center;" id=timecode>none</p>
-    
-    <script id="timecode_script">
-        (function () {
-            const textfield = document.getElementById('timecode')
-    
-            let ws;
-    
-            function showTimecode(message) {
-                textfield.innerHTML = message;
-            }
-    
-            function init() {
-                if (ws) {
-                    ws.onerror = ws.onopen = ws.onclose = null;
-                    ws.close();
-                }
-    
-                ws = new WebSocket('ws://localhost:5000');
-                ws.onopen = () => {
-                    console.log('Connection opened!');
-                }
-    
-                ws.onmessage = ({data}) => showTimecode(data);
-    
-                ws.onclose = function() {
-                    console.log('Connection closed!');
-                }
-            }
-            init();
-        })();
-    </script>
+    <div style="text-align:center;">
+        <h1 style="color:white;font-size:50px;">Timecode</h1>
+        <p style="color:white;font-size:30px;" id=timecode>none</p>
 
+        <button style="font-size:20px;" onclick="sendMessage('restart')">Restart</button>
+        <button style="font-size:20px;" onclick="sendMessage('switch master')">Switch to Master time</button>
+        <button style="font-size:20px;" onclick="sendMessage('reset master')">Reset Master time</button>
+    </div>
+    <script id="timecode_script">
+
+        let ws;
+        const textfield = document.getElementById('timecode')
+
+        function showTimecode(message) {
+            textfield.innerHTML = message;
+        };
+
+        function sendMessage(message) {
+            ws.send(message);
+        };
+
+        function init() {
+            if (ws) {
+                ws.onerror = ws.onopen = ws.onclose = null;
+                ws.close();
+            }
+
+            ws = new WebSocket('ws://localhost:5000');
+            ws.onopen = () => {
+                console.log('Connection opened!');
+            }
+
+            ws.onmessage = ({data}) => showTimecode(data);
+
+            ws.onclose = function() {
+                console.log('Connection closed!');
+            }
+        }
+
+        init();
+
+    </script>
 </body>
 </html>
 
