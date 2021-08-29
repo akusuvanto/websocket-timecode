@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <style>
+            button {font-size:20px;};
+        </style>
+    </head>
 <body style="background-color: #1a1c1e;">
 
     <div style="text-align:center;">
         <h1 style="color:white;font-size:50px;">Timecode</h1>
         <p style="color:white;font-size:30px;" id=timecode>none</p>
 
-        <button style="font-size:20px;" onclick="sendMessage('restart')">Restart</button>
-        <button style="font-size:20px;" onclick="sendMessage('switch master')">Switch to Master time</button>
-        <button style="font-size:20px;" onclick="sendMessage('reset master')">Reset Master time</button>
+        <button onclick="sendMessage('restart local')">Restart Local</button>
+        <button onclick="sendMessage('restart master')">Restart Master</button>
+        <button onclick="sendMessage('switch local')">Switch to Local time</button>
+        <button onclick="sendMessage('switch master')">Switch to Master time</button>
+        <button onclick="sendMessage('timemode milliseconds')">Receive Milliseconds</button>
+        <button onclick="sendMessage('timemode formatted')">Receive Formatted time</button>
     </div>
+
     <script id="timecode_script">
 
         let ws;

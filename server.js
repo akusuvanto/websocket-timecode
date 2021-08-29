@@ -25,21 +25,24 @@ const app = express();
 
 wss.on('connection', function connection(ws){
     ws.isAlive = true;
-    ws.startTime = Date.now();
+    ws.localStartTime = Date.now();
+    ws.startTime = masterStartTime;
     ws.on('pong', heartbeat);
+
+    // Modes: milliseconds, formatted
+    ws.timeMode = 'milliseconds';
 })
 
 // Command handler
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         switch(message.toString()) {
-            case 'restart':
-                ws.startTime = Date.now();
+            case 'restart local':
+                ws.localStartTime = Date.now();
+                ws.startTime = ws.localStartTime;
                 break;
-            case 'switch master':
-                ws.startTime = masterStartTime;
-                break;
-            case 'reset master':
+
+            case 'restart master':
                 oldMasterStartTime = masterStartTime;
                 masterStartTime = Date.now();
                 wss.clients.forEach(function each(ws) {
@@ -48,6 +51,23 @@ wss.on('connection', function connection(ws) {
                     }
                 });
                 break;
+
+            case 'switch local':
+                ws.startTime = ws.localStartTime;
+                break;
+
+            case 'switch master':
+                ws.startTime = masterStartTime;
+                break;
+
+            case 'timemode milliseconds':
+                ws.timeMode = 'milliseconds'
+                break;
+
+            case 'timemode formatted':
+                ws.timeMode = 'formatted'
+                break;
+
             default:
                 break;
         }
@@ -56,7 +76,16 @@ wss.on('connection', function connection(ws) {
 
 function sendTimecode() {
     wss.clients.forEach(function each(ws) {
-        ws.send(msToTimecode(Date.now() - ws.startTime).toString())
+        switch(ws.timeMode) {
+            case 'milliseconds':
+                ws.send((Date.now() - ws.startTime).toString())
+                break;
+            case 'formatted':
+                ws.send(msToTimecode(Date.now() - ws.startTime).toString())
+                break;
+            default:
+                break;
+        }
     });
 };
 
